@@ -1,5 +1,7 @@
 # Letter Trace
 
+[![Letter Trace showing the word "cat" with the pencil tracing the letters](preview.png)](https://haptonstahl.org/letter-trace/)
+
 A static, client-side handwriting practice toy for 1st–3rd graders and their
 teachers. Pick a letter, a word, the whole alphabet, the digits, or a list of
 common words; a pencil draws each letter stroke by stroke, then the child can
@@ -13,6 +15,7 @@ Live at <https://haptonstahl.org/letter-trace/>.
 | --- | --- |
 | `index.html` | The whole app: markup, styles, stroke data, and animation code. |
 | `sw.js` | A tiny service worker that caches `index.html` so the page opens offline. |
+| `preview.png` | The 1200×630 card used in this README and for link previews. |
 
 Everything runs in the browser. There is no server-side code, no build step, no
 npm install, no CDN, no fonts to download, and no data ever leaves the device.
@@ -32,8 +35,37 @@ npm install, no CDN, no fonts to download, and no data ever leaves the device.
 - **Common words** are shuffled once and the order is kept in `localStorage`, so
   forward/back always retraces the words the child has already seen. Entering
   the mode starts on a random word.
-- **My words**: a teacher can paste a spelling list; it is stored on the device.
+- **My words**: a teacher can paste a spelling list; it is stored on the device
+  and also written into the address bar (`?words=cat,dog,sun`) so the list can be
+  bookmarked or shared as a link.
 - **Offline**: installed as a service worker cache on first visit.
+
+## For teachers
+
+1. Open <https://haptonstahl.org/letter-trace/> on whatever the room has — laptop,
+   tablet, or phone. Nothing to install, no account, no ads.
+2. Pick **One letter**, **A word**, **A–Z**, **0–9**, or **Common words**. Press
+   **Play**, or **Step** to walk one stroke at a time.
+3. Press **✏️ Trace it** and the child draws over the letter with a finger or mouse.
+   Ink turns amber when the finger wanders off the stroke; the stroke turns green
+   when it is followed.
+4. **My words** holds this week's spelling list. Paste it, save, and the address
+   bar becomes a link — `…/letter-trace/?words=cat,dog,sun` — that you can
+   bookmark, project, or send to the class. The list is kept on each device, so
+   the link is how you move it between devices.
+5. A shared link opens straight into that list. Once the page has loaded once it
+   also opens without wifi.
+
+## The `?words=` parameter
+
+`https://haptonstahl.org/letter-trace/?words=cat,dog,sun`
+
+- Words are separated by commas (spaces or `;` also work), max 200 words,
+  12 characters each, letters and digits only.
+- The link seeds **My words** and opens that tab. Duplicates are dropped
+  case-insensitively, and the list is saved on the device as well.
+- Saving a list in the app rewrites the address bar to match, so the URL is
+  always the thing to share.
 
 ## Deploying
 
@@ -42,7 +74,7 @@ The site is just files, served from `~/public_html/letter-trace/` on
 with `kid-texto`). Deploy with:
 
 ```sh
-rsync -av --delete index.html sw.js hap.org:public_html/letter-trace/
+rsync -av --delete index.html sw.js preview.png hap.org:public_html/letter-trace/
 ```
 
 The app uses only relative URLs, so it works from any subdirectory. Serve it

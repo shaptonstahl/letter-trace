@@ -6,6 +6,15 @@
 <meta name="theme-color" content="#fff8ec">
 <title>Letter Trace — handwriting practice for young readers</title>
 <meta name="description" content="Watch a pencil trace each letter, then trace it yourself. For 1st–3rd graders and their teachers.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Stephen Haptonstahl">
+<meta property="og:title" content="Letter Trace — handwriting practice for young readers">
+<meta property="og:description" content="Watch a pencil trace each letter, then trace it yourself. Free, no account, no ads, works offline.">
+<meta property="og:url" content="https://haptonstahl.org/letter-trace/">
+<meta property="og:image" content="https://haptonstahl.org/letter-trace/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffd23f'/%3E%3Ctext x='32' y='45' font-family='Verdana,sans-serif' font-size='36' font-weight='bold' text-anchor='middle' fill='%2322304b'%3EA%3C/text%3E%3C/svg%3E">
 <style>
   :root{
@@ -413,7 +422,7 @@
 <dialog id="wordDialog">
   <form method="dialog" id="wordForm">
     <h2>My word list</h2>
-    <p>Type this week’s words — one per line, or separated by commas. They stay on this device only.</p>
+    <p>Type this week’s words — one per line, or separated by commas. Saving also puts them in the address bar, so the link can be bookmarked or sent to the class.</p>
     <textarea id="customText" placeholder="cat&#10;dog&#10;sun&#10;the" aria-label="My words"></textarea>
     <div class="row">
       <button type="button" class="btn small" id="btnClearWords">Clear list</button>
@@ -604,6 +613,52 @@
 
   if(!["lower","title","upper"].includes(S.case)) S.case = "lower";
   if(!["full","dots","base"].includes(S.guides)) S.guides = "full";
+
+  /* ---------------- shareable word lists (?words=cat,dog,sun) ---------------- */
+  function parseWordList(raw){
+    const seen = new Set();
+    const words = [];
+    for(const part of String(raw).split(/[\s,;]+/)){
+      const w = cleanInput(part).replace(/\s+/g, "");
+      if(!w) continue;
+      const k = w.toLowerCase();
+      if(seen.has(k)) continue;
+      seen.add(k);
+      words.push(w);
+      if(words.length >= 200) break;
+    }
+    return words.length ? words : null;
+  }
+
+  function readWordsFromUrl(){
+    try{
+      const raw = new URLSearchParams(location.search).get("words");
+      return raw ? parseWordList(raw) : null;
+    }catch(e){ return null; }
+  }
+
+  function syncUrlWithWords(){
+    try{
+      const url = new URL(location.href);
+      url.searchParams.delete("words");
+      const rest = url.searchParams.toString();
+      if(S.customWords.length){
+        const q = "words=" + S.customWords.map(w => encodeURIComponent(w)).join(",");
+        url.search = rest ? rest + "&" + q : q;
+      }else{
+        url.search = rest;
+      }
+      history.replaceState(null, "", url.href);
+    }catch(e){ /* file:// or a sandboxed frame: nothing to update */ }
+  }
+
+  // A shared link seeds the teacher list and opens it directly.
+  const urlWords = readWordsFromUrl();
+  if(urlWords){
+    S.customWords = urlWords;
+    store.set("customWords", urlWords);
+    S.mode = "custom";
+  }
 
   /* ---------------- dom ---------------- */
   const $ = id => document.getElementById(id);
@@ -1459,20 +1514,10 @@
   }
 
   function saveCustomWords(){
-    const parts = customText.value.split(/[\s,;]+/);
-    const seen = new Set();
-    const words = [];
-    for(const part of parts){
-      const w = cleanInput(part).replace(/\s+/g, "");
-      if(!w) continue;
-      const k = w.toLowerCase();
-      if(seen.has(k)) continue;
-      seen.add(k);
-      words.push(w);
-      if(words.length >= 200) break;
-    }
+    const words = parseWordList(customText.value) || [];
     S.customWords = words;
     store.set("customWords", words);
+    syncUrlWithWords();
 
     const tab = tabs.querySelector('button[data-mode="custom"]');
     tab.hidden = words.length === 0;
@@ -1483,7 +1528,7 @@
     if(words.length){
       S.custom = 0;
       setMode("custom");
-      showToast(`${words.length} word${words.length === 1 ? "" : "s"} saved`);
+      showToast(`${words.length} word${words.length === 1 ? "" : "s"} saved — the link is ready to share`);
     }else if(S.mode === "custom"){
       setMode("word");
       showToast("Word list cleared");
@@ -1642,7 +1687,12 @@
 
     wordInput.value = S.input;
     askRow.hidden = false;
-    render({ autoplay: true });
+
+    if(S.mode === "custom" && S.customWords.length){
+      setMode("custom");
+    }else{
+      render({ autoplay: true });
+    }
 
     requestAnimationFrame(fitSheet);
     if("ResizeObserver" in window){
