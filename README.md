@@ -28,10 +28,14 @@ npm install, no CDN, no fonts to download, and no data ever leaves the device.
   start dots, direction chevrons, and numbered strokes.
 - **Play / pause / step / replay**, plus tap any letter to replay just that
   letter.
+- **Settings** in the header: pencil speed (slow, normal, fast — normal is a
+  gentle pace, fast is the original) and guide lines (full, dots, line). Letter
+  case (`abc` / `Abc` / `ABC`) stays on the main screen.
+- **A shareable link**: case, guides, speed, and the teacher's word list are all
+  written into the URL, so a copied address reproduces the whole setup.
 - **Trace mode**: after the demo, the child traces each stroke. Ink turns amber
   when the finger wanders, and the stroke locks in green when it is followed.
-- **Case switch**: `abc`, `Abc`, or `ABC`.
-- **Guide switch**: full handwriting guides, dots only, or just a baseline.
+- **Case switch** on the main screen: `abc`, `Abc`, or `ABC`.
 - **Common words** are shuffled once and the order is kept in `localStorage`, so
   forward/back always retraces the words the child has already seen. Entering
   the mode starts on a random word.
@@ -46,26 +50,42 @@ npm install, no CDN, no fonts to download, and no data ever leaves the device.
    tablet, or phone. Nothing to install, no account, no ads.
 2. Pick **One letter**, **A word**, **A–Z**, **0–9**, or **Common words**. Press
    **Play**, or **Step** to walk one stroke at a time.
-3. Press **✏️ Trace it** and the child draws over the letter with a finger or mouse.
+3. If the pencil moves too quickly (or too slowly), open **⚙ Settings** and set
+   **Pencil speed** to slow, normal, or fast. **Guide lines** are there too.
+4. Press **✏️ Trace it** and the child draws over the letter with a finger or mouse.
    Ink turns amber when the finger wanders off the stroke; the stroke turns green
    when it is followed.
-4. **My words** holds this week's spelling list. Paste it, save, and the address
+5. **My words** holds this week's spelling list. Paste it, save, and the address
    bar becomes a link — `…/letter-trace/?words=cat,dog,sun` — that you can
    bookmark, project, or send to the class. The list is kept on each device, so
    the link is how you move it between devices.
-5. A shared link opens straight into that list. Once the page has loaded once it
-   also opens without wifi.
+6. A shared link opens straight into that list, with the case, guides and speed
+   it was set to. Once the page has loaded once it also opens without wifi.
 
-## The `?words=` parameter
+## URL parameters
 
-`https://haptonstahl.org/letter-trace/?words=cat,dog,sun`
+The current setup lives in the address bar, so a copied link reproduces it:
 
-- Words are separated by commas (spaces or `;` also work), max 200 words,
-  12 characters each, letters and digits only.
-- The link seeds **My words** and opens that tab. Duplicates are dropped
-  case-insensitively, and the list is saved on the device as well.
-- Saving a list in the app rewrites the address bar to match, so the URL is
-  always the thing to share.
+```
+https://haptonstahl.org/letter-trace/?case=lower&guides=full&speed=normal&words=cat,dog,sun
+```
+
+| Parameter | Values | Default |
+| --- | --- | --- |
+| `case` | `lower`, `title`, `upper` | `lower` |
+| `guides` | `full`, `dots`, `line` | `full` |
+| `speed` | `slow`, `normal`, `fast` | `normal` |
+| `words` | comma, space, or semicolon separated | none |
+
+- Changing anything in the app rewrites the address bar to match, so it is always
+  the thing to bookmark or send.
+- `?words=` also seeds **My words** and opens that tab. Duplicates are dropped
+  case-insensitively and the list is saved on the device.
+- Limits: 200 words, 12 characters each, letters and digits only.
+- Missing or unrecognized values fall back to the defaults, so a truncated link
+  still works.
+- `case=lower` is the default and is perfectly fine to leave in a link, which
+  makes it easy to see what a URL sets.
 
 ## Deploying
 

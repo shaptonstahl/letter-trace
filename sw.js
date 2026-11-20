@@ -1,6 +1,6 @@
 /* Letter Trace — tiny offline cache.
    The whole app is index.html, so this only needs to keep that one file. */
-const CACHE = "letter-trace-v3";
+const CACHE = "letter-trace-v4";
 const ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", event => {

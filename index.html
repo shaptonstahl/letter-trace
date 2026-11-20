@@ -318,6 +318,15 @@
   dialog textarea::placeholder{ color:#b3bdcc; font-weight:600; }
   dialog .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:2px; }
   dialog .row .spacer{ flex:1 1 auto; }
+  dialog .field{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  dialog .field-label{
+    font-weight:800; font-size:15px; color:var(--ink); min-width:118px;
+  }
+  dialog .seg.wide button{ padding:6px 16px; }
+  dialog .note{
+    font-size:13px; color:var(--ink-soft); font-weight:700;
+    background:rgba(34,48,75,.05); border-radius:12px; padding:9px 12px;
+  }
 
   @media (max-width:640px){
     .app{ gap:8px; padding-top:10px; }
@@ -333,6 +342,8 @@
     }
     .ask input{ min-height:50px; font-size:22px; }
     .hint{ display:none; }
+    #btnSettings{ padding:8px 12px; }
+    #btnSettings .btn-label{ display:none; }
   }
   @media (prefers-reduced-motion: reduce){
     *{ scroll-behavior:auto !important; }
@@ -359,11 +370,7 @@
         <button type="button" data-case="title" aria-pressed="false" title="Capital first letter">Abc</button>
         <button type="button" data-case="upper" aria-pressed="false" title="All capitals">ABC</button>
       </div>
-      <div class="seg" role="group" aria-label="Guide lines">
-        <button type="button" data-guides="full" aria-pressed="true" title="Lines, dots, numbers and arrows">Full guides</button>
-        <button type="button" data-guides="dots" aria-pressed="false" title="Lines and start dots">Dots</button>
-        <button type="button" data-guides="base" aria-pressed="false" title="Baseline only">Line</button>
-      </div>
+      <button type="button" class="btn small" id="btnSettings" aria-haspopup="dialog" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span><span class="btn-label">Settings</span></button>
       <button type="button" class="btn small" id="btnWords">My words</button>
     </div>
   </header>
@@ -429,6 +436,33 @@
       <span class="spacer"></span>
       <button type="button" class="btn small" id="btnCancelWords">Cancel</button>
       <button type="submit" class="btn small primary" id="btnSaveWords">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="settingsDialog">
+  <form method="dialog" id="settingsForm">
+    <h2>Settings</h2>
+    <div class="field">
+      <span class="field-label">Pencil speed</span>
+      <div class="seg wide" role="group" aria-label="Pencil speed">
+        <button type="button" data-speed="slow" aria-pressed="false">Slow</button>
+        <button type="button" data-speed="normal" aria-pressed="true">Normal</button>
+        <button type="button" data-speed="fast" aria-pressed="false">Fast</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label">Guide lines</span>
+      <div class="seg wide" role="group" aria-label="Guide lines">
+        <button type="button" data-guides="full" aria-pressed="true">Full</button>
+        <button type="button" data-guides="dots" aria-pressed="false">Dots</button>
+        <button type="button" data-guides="line" aria-pressed="false">Line</button>
+      </div>
+    </div>
+    <p class="note">Settings are kept in the address bar, so a link you copy keeps them.</p>
+    <div class="row">
+      <span class="spacer"></span>
+      <button type="submit" class="btn small primary">Done</button>
     </div>
   </form>
 </dialog>
@@ -600,6 +634,7 @@
     input: "cat",
     case: store.get("case", "lower"),
     guides: store.get("guides", "full"),
+    speed: store.get("speed", "normal"),
     az: 0,
     digits: 0,
     common: 0,
@@ -611,10 +646,17 @@
     stopAt: null
   };
 
-  if(!["lower","title","upper"].includes(S.case)) S.case = "lower";
-  if(!["full","dots","base"].includes(S.guides)) S.guides = "full";
+  const CASES = ["lower", "title", "upper"];
+  const GUIDES = ["full", "dots", "line"];
+  const SPEEDS = ["slow", "normal", "fast"];
 
-  /* ---------------- shareable word lists (?words=cat,dog,sun) ---------------- */
+  if(!CASES.includes(S.case)) S.case = "lower";
+  if(S.guides === "base") S.guides = "line";            // older saved value
+  if(!GUIDES.includes(S.guides)) S.guides = "full";
+  if(!SPEEDS.includes(S.speed)) S.speed = "normal";
+
+  /* ---------------- settings and words in the URL ----------------
+     ?case=lower&guides=full&speed=normal&words=cat,dog,sun          */
   function parseWordList(raw){
     const seen = new Set();
     const words = [];
@@ -630,33 +672,43 @@
     return words.length ? words : null;
   }
 
-  function readWordsFromUrl(){
-    try{
-      const raw = new URLSearchParams(location.search).get("words");
-      return raw ? parseWordList(raw) : null;
-    }catch(e){ return null; }
+  function readUrl(){
+    let q;
+    try{ q = new URLSearchParams(location.search); }
+    catch(e){ return { words: null }; }
+
+    const c = q.get("case");
+    if(CASES.includes(c)) S.case = c;
+    const g = q.get("guides");
+    if(GUIDES.includes(g)) S.guides = g;
+    const s = q.get("speed");
+    if(SPEEDS.includes(s)) S.speed = s;
+
+    const raw = q.get("words");
+    return { words: raw ? parseWordList(raw) : null };
   }
 
-  function syncUrlWithWords(){
+  function syncUrl(){
     try{
       const url = new URL(location.href);
-      url.searchParams.delete("words");
-      const rest = url.searchParams.toString();
+      const parts = [
+        "case=" + S.case,
+        "guides=" + S.guides,
+        "speed=" + S.speed
+      ];
       if(S.customWords.length){
-        const q = "words=" + S.customWords.map(w => encodeURIComponent(w)).join(",");
-        url.search = rest ? rest + "&" + q : q;
-      }else{
-        url.search = rest;
+        parts.push("words=" + S.customWords.map(w => encodeURIComponent(w)).join(","));
       }
+      url.search = parts.join("&");
       history.replaceState(null, "", url.href);
     }catch(e){ /* file:// or a sandboxed frame: nothing to update */ }
   }
 
-  // A shared link seeds the teacher list and opens it directly.
-  const urlWords = readWordsFromUrl();
-  if(urlWords){
-    S.customWords = urlWords;
-    store.set("customWords", urlWords);
+  // A shared link seeds the settings, and its word list opens directly.
+  const fromUrl = readUrl();
+  if(fromUrl.words){
+    S.customWords = fromUrl.words;
+    store.set("customWords", fromUrl.words);
     S.mode = "custom";
   }
 
@@ -799,7 +851,7 @@
     plan.rows.forEach((row, ri) => {
       const oy = TOP + ri * ROWH;
       const line = (y, cls) => el("line", { x1: x0, y1: oy + y, x2: x1, y2: oy + y, class: cls }, g);
-      if(S.guides !== "base"){
+      if(S.guides !== "line"){
         line(METRICS.asc, "gline faint");
         line(METRICS.cap, "gline faint");
         line(METRICS.xh, "gline mid");
@@ -915,7 +967,7 @@
 
   function hintsFor(L, opts){
     clearHints(L);
-    if(S.guides === "base" || S.phase === "trace") return;
+    if(S.guides === "line" || S.phase === "trace") return;
 
     const only = opts && typeof opts.stroke === "number" ? opts.stroke : -1;
     const gw = (GLYPHS[L.ch] && GLYPHS[L.ch].w) || 30;
@@ -967,7 +1019,7 @@
     const L = letters[trace.li];
     if(!L) return;
     clearHints(L);
-    if(S.guides === "base") return;
+    if(S.guides === "line") return;
     const sample = L.samples[trace.si];
     if(!sample) return;
     const p0 = sample.pts[0];
@@ -978,20 +1030,34 @@
   /* =====================================================================
      Demo animation
      ===================================================================== */
+  // Pencil speed. `k` scales ms per unit of stroke length; the holds are
+  // the pauses between strokes and between letters.
+  const PACE = {
+    slow:   { k: 14,  min: 700, max: 3200, strokeHold: 600, letterHold: 1150 },
+    normal: { k: 10,  min: 480, max: 2400, strokeHold: 420, letterHold: 800  },
+    fast:   { k: 6.2, min: 330, max: 1500, strokeHold: 240, letterHold: 520  }
+  };
+
+  function pace(){
+    return PACE[S.speed] || PACE.normal;
+  }
+
   function strokeDuration(path){
+    const p = pace();
     const len = path.getTotalLength();
-    return Math.max(330, Math.min(1500, len * 6.2));
+    return Math.max(p.min, Math.min(p.max, len * p.k));
   }
 
   function buildTimeline(startLi){
+    const p = pace();
     const out = [];
     for(let li = startLi; li < letters.length; li++){
       const L = letters[li];
       L.strokes.forEach((path, si) => {
         out.push({ type: "stroke", li, si, dur: strokeDuration(path) });
-        if(si < L.strokes.length - 1) out.push({ type: "hold", dur: 240 });
+        if(si < L.strokes.length - 1) out.push({ type: "hold", dur: p.strokeHold });
       });
-      if(li < letters.length - 1) out.push({ type: "hold", dur: 520 });
+      if(li < letters.length - 1) out.push({ type: "hold", dur: p.letterHold });
     }
     return out;
   }
@@ -1517,7 +1583,7 @@
     const words = parseWordList(customText.value) || [];
     S.customWords = words;
     store.set("customWords", words);
-    syncUrlWithWords();
+    syncUrl();
 
     const tab = tabs.querySelector('button[data-mode="custom"]');
     tab.hidden = words.length === 0;
@@ -1550,6 +1616,7 @@
       document.querySelectorAll(".seg button[data-case]").forEach(x => {
         x.setAttribute("aria-pressed", String(x === b));
       });
+      syncUrl();
       render({ autoplay: true });
     });
   });
@@ -1561,6 +1628,19 @@
       document.querySelectorAll(".seg button[data-guides]").forEach(x => {
         x.setAttribute("aria-pressed", String(x === b));
       });
+      syncUrl();
+      render({ autoplay: true });
+    });
+  });
+
+  document.querySelectorAll(".seg button[data-speed]").forEach(b => {
+    b.addEventListener("click", () => {
+      S.speed = b.dataset.speed;
+      store.set("speed", S.speed);
+      document.querySelectorAll(".seg button[data-speed]").forEach(x => {
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      syncUrl();
       render({ autoplay: true });
     });
   });
@@ -1635,6 +1715,11 @@
   svg.addEventListener("pointercancel", onPointerUp);
 
   $("btnWords").addEventListener("click", openWordDialog);
+  $("btnSettings").addEventListener("click", () => {
+    const d = $("settingsDialog");
+    if(typeof d.showModal === "function") d.showModal();
+    else d.setAttribute("open", "");
+  });
   $("btnCancelWords").addEventListener("click", () => {
     if(typeof dialog.close === "function") dialog.close();
     else dialog.removeAttribute("open");
@@ -1654,7 +1739,7 @@
 
   document.addEventListener("keydown", evt => {
     if(evt.target === wordInput || evt.target.tagName === "TEXTAREA") return;
-    if(dialog.open) return;
+    if(document.querySelector("dialog[open]")) return;
     if(evt.key === " " || evt.code === "Space"){
       evt.preventDefault();
       if(S.phase === "demo") btnPlay.click();
@@ -1679,6 +1764,9 @@
     });
     document.querySelectorAll(".seg button[data-guides]").forEach(b => {
       b.setAttribute("aria-pressed", String(b.dataset.guides === S.guides));
+    });
+    document.querySelectorAll(".seg button[data-speed]").forEach(b => {
+      b.setAttribute("aria-pressed", String(b.dataset.speed === S.speed));
     });
 
     // custom tab visibility
