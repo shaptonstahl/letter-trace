@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
+<title>Letter Trace — handwriting practice for young readers</title>
+<meta name="description" content="Watch a pencil trace each letter, then trace it yourself. For 1st–3rd graders and their teachers.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffd23f'/%3E%3Ctext x='32' y='45' font-family='Verdana,sans-serif' font-size='36' font-weight='bold' text-anchor='middle' fill='%2322304b'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --paper:#fff8ec;
+    --paper-2:#fffdf7;
+    --ink:#22304b;
+    --ink-soft:#5c6b86;
+    --line:#c9d6e6;
+    --mid:#e7a6bf;
+    --orange:#ff6a3d;
+    --yellow:#ffd23f;
+    --teal:#12a594;
+    --pink:#ff6f91;
+    --green:#3bb273;
+    --blue:#4c9aff;
+    --radius:26px;
+    --shadow:0 5px 0 rgba(34,48,75,.16);
+    --font: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", "Segoe UI Variable Display", "Segoe UI", "Trebuchet MS", system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  [hidden]{ display:none !important; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(34,48,75,.10) 1px, transparent 1.6px);
+    background-size:26px 26px;
+    -webkit-text-size-adjust:100%;
+    min-height:100dvh;
+  }
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:14px clamp(12px,2.6vw,26px) 26px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    min-height:100dvh;
+  }
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px 18px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .logo{
+    width:46px; height:46px; flex:0 0 auto;
+    display:grid; place-items:center;
+    font-size:24px;
+    background:var(--yellow);
+    border:3px solid var(--ink);
+    border-radius:16px 18px 15px 19px;
+    box-shadow:0 3px 0 rgba(34,48,75,.9);
+    transform:rotate(-6deg);
+  }
+  h1{
+    font-size:clamp(22px,3.4vw,32px);
+    margin:0; letter-spacing:.01em; font-weight:800;
+    text-shadow:0 2px 0 rgba(255,255,255,.7);
+  }
+  .settings{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .seg{
+    display:inline-flex; padding:3px; gap:2px;
+    background:#fff; border:2.5px solid var(--ink); border-radius:999px;
+    box-shadow:0 2px 0 rgba(34,48,75,.85);
+  }
+  .seg button{
+    border:0; background:transparent; color:var(--ink);
+    font:inherit; font-size:14px; font-weight:700;
+    padding:6px 10px; border-radius:999px; cursor:pointer;
+    line-height:1.15; min-height:32px;
+  }
+  .seg button[aria-pressed="true"]{ background:var(--ink); color:var(--paper); }
+  .seg button:hover{ background:rgba(34,48,75,.09); }
+  .seg button[aria-pressed="true"]:hover{ background:var(--ink); }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font:inherit; font-weight:800; color:var(--ink);
+    background:#fff; border:2.5px solid var(--ink); border-radius:999px;
+    padding:9px 16px; min-height:44px;
+    cursor:pointer; box-shadow:0 3px 0 rgba(34,48,75,.9);
+    transition:transform .06s ease, box-shadow .06s ease, background .15s ease;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    line-height:1.1; white-space:nowrap;
+  }
+  .btn:hover{ background:#fffaf0; }
+  .btn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(34,48,75,.9); }
+  .btn:disabled{ opacity:.32; cursor:not-allowed; transform:none; box-shadow:0 3px 0 rgba(34,48,75,.35); }
+  .btn.primary{ background:var(--orange); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.15); }
+  .btn.primary:hover{ background:#ff7f57; }
+  .btn.gold{ background:var(--yellow); }
+  .btn.gold:hover{ background:#ffdc6b; }
+  .btn.small{ min-height:38px; padding:7px 12px; font-size:14px; }
+  .btn.nav{ font-size:22px; padding:9px 15px; }
+  .btn.glow{ animation:glow 1.6s ease-in-out infinite; }
+  @keyframes glow{
+    0%,100%{ box-shadow:0 3px 0 rgba(34,48,75,.9), 0 0 0 0 rgba(255,106,61,.55); }
+    50%{ box-shadow:0 3px 0 rgba(34,48,75,.9), 0 0 0 10px rgba(255,106,61,0); }
+  }
+  :focus-visible{ outline:3px dashed var(--blue); outline-offset:3px; }
+
+  /* ---------- tabs ---------- */
+  nav.tabs{
+    display:flex; gap:8px; overflow-x:auto; padding:3px 2px 6px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    flex-wrap:wrap;
+  }
+  nav.tabs::-webkit-scrollbar{ display:none; }
+  nav.tabs button{
+    flex:0 0 auto;
+    font:inherit; font-weight:800; font-size:clamp(13px,1.7vw,15px);
+    color:var(--ink); background:#fff;
+    border:2.5px solid var(--ink); border-radius:999px;
+    padding:9px 15px; min-height:42px; cursor:pointer;
+    box-shadow:0 3px 0 rgba(34,48,75,.9);
+    transition:transform .06s ease, box-shadow .06s ease;
+  }
+  nav.tabs button:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(34,48,75,.9); }
+  nav.tabs button[aria-pressed="true"]{ background:var(--ink); color:var(--paper); }
+  nav.tabs button[aria-pressed="true"]:hover{ background:var(--ink); }
+  nav.tabs button:hover{ background:#fffaf0; }
+  nav.tabs button[aria-pressed="true"]:hover{ background:var(--ink); }
+
+  /* ---------- ask row ---------- */
+  .ask{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .ask label{ font-weight:800; font-size:15px; color:var(--ink-soft); }
+  .ask input{
+    flex:1 1 260px; min-width:0;
+    font:inherit; font-weight:800;
+    font-size:clamp(20px,3.4vw,28px);
+    letter-spacing:.04em;
+    color:var(--ink); background:#fff;
+    border:3px solid var(--ink); border-radius:18px;
+    padding:8px 16px; min-height:56px;
+    box-shadow:inset 0 2px 0 rgba(34,48,75,.06), 0 3px 0 rgba(34,48,75,.9);
+  }
+  .ask input::placeholder{ color:#a9b3c4; font-weight:700; letter-spacing:.02em; }
+  .ask .tip{ font-size:13px; color:var(--ink-soft); font-weight:700; }
+
+  /* ---------- stage ---------- */
+  main.card{
+    position:relative;
+    background:var(--paper-2);
+    border:3px solid var(--ink);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:10px 10px 6px;
+    display:flex; flex-direction:column;
+    flex:0 0 auto; min-height:320px;
+    overflow:hidden;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(34,48,75,.06) 1px, transparent 1.6px);
+    background-size:22px 22px;
+  }
+  .badge{
+    position:absolute; top:12px; left:14px; z-index:3;
+    font-size:13px; font-weight:800; color:var(--ink);
+    background:var(--yellow);
+    border:2.5px solid var(--ink); border-radius:999px;
+    padding:3px 11px;
+    box-shadow:0 2px 0 rgba(34,48,75,.85);
+    transform:rotate(-2deg);
+  }
+  .sheetwrap{
+    flex:1 1 auto; display:flex; align-items:center; justify-content:center;
+    padding:6px 2px; min-height:180px; width:100%;
+  }
+  .sheet{ position:relative; }
+  .sheet svg{ display:block; width:100%; height:100%; overflow:visible; }
+  .caption{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    min-height:52px; flex-wrap:wrap;
+    padding:0 6px 6px;
+  }
+  .caption .emoji{ font-size:clamp(24px,4vw,34px); line-height:1; }
+  .caption .word{
+    font-size:clamp(24px,4.6vw,40px); font-weight:900; letter-spacing:.06em;
+    line-height:1.05;
+  }
+  .caption .empty{ color:var(--ink-soft); font-weight:700; font-size:17px; letter-spacing:0; }
+  .toast{
+    position:absolute; left:50%; top:10px; transform:translate(-50%,-6px);
+    background:var(--ink); color:var(--paper);
+    font-weight:800; font-size:15px;
+    padding:8px 16px; border-radius:999px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    z-index:5; max-width:92%; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .stars{
+    position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:4;
+  }
+  .stars span{
+    position:absolute; font-size:34px; opacity:0;
+    animation:pop 1.5s ease-out forwards;
+  }
+  @keyframes pop{
+    0%{ opacity:0; transform:scale(.2) rotate(-20deg); }
+    25%{ opacity:1; transform:scale(1.15) rotate(6deg); }
+    75%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) rotate(-8deg) translateY(-18px); }
+  }
+
+  /* guide lines */
+  .gline{ stroke:#cfdbea; stroke-width:1.4; }
+  .gline.faint{ stroke:#e3ebf4; }
+  .gline.mid{ stroke:var(--mid); stroke-dasharray:6 7; stroke-width:1.4; }
+  .gline.base{ stroke:#9db0c8; stroke-width:2; }
+
+  /* glyph layers */
+  .ghost{
+    fill:none; stroke:#e3e9f2; stroke-width:5;
+    stroke-linecap:round; stroke-linejoin:round;
+    transition:stroke .2s ease;
+  }
+  .glyph.active .ghost{ stroke:#d3deec; }
+  .glyph.dim .ghost{ stroke:#eef2f7; }
+  .drop{
+    fill:none; stroke:var(--ink); stroke-width:5;
+    stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:1 2; stroke-dashoffset:1;
+  }
+  .drop.live{ stroke:var(--orange); }
+  .drop.traced{ stroke:var(--green); }
+  [data-phase="trace"] .drop:not(.traced){ stroke-opacity:0; }
+  .tink{
+    fill:none; stroke:var(--green); stroke-width:7;
+    stroke-linecap:round; stroke-linejoin:round;
+    stroke-opacity:.85;
+  }
+  .tink.off{ stroke:#e8a33d; stroke-opacity:.4; }
+  .hit{ fill:transparent; cursor:pointer; }
+  [data-phase="trace"] .hit{ cursor:crosshair; }
+  .hints .dot{ fill:var(--green); stroke:#fff; stroke-width:1.5; }
+  .hints .ring{
+    fill:none; stroke:var(--green); stroke-width:2; opacity:.9;
+    animation:ripple 1.5s ease-out infinite;
+    transform-box:fill-box; transform-origin:center;
+  }
+  @keyframes ripple{
+    0%{ transform:scale(.6); opacity:.9; }
+    70%{ transform:scale(1.9); opacity:0; }
+    100%{ opacity:0; }
+  }
+  .hints .num{
+    font-family:var(--font); font-size:10.5px; font-weight:900;
+    fill:var(--ink-soft);
+    text-anchor:middle; dominant-baseline:central;
+    paint-order:stroke; stroke:#fffdf7; stroke-width:2.5px;
+  }
+  .hints .arrow{ fill:none; stroke:var(--ink-soft); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .pencil{ pointer-events:none; }
+  .pencil .body{ fill:var(--yellow); stroke:var(--ink); stroke-width:1.6; stroke-linejoin:round; }
+  .pencil .band{ fill:#b8c4d6; stroke:var(--ink); stroke-width:1.4; }
+  .pencil .eraser{ fill:var(--pink); stroke:var(--ink); stroke-width:1.4; }
+  .pencil .wood{ fill:#f4dcbb; stroke:var(--ink); stroke-width:1.4; stroke-linejoin:round; }
+  .pencil .lead{ fill:var(--ink); }
+  [data-phase="trace"] .pencil{ display:none; }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex; align-items:center; justify-content:center;
+    gap:clamp(6px,1.6vw,12px); flex-wrap:wrap;
+  }
+  .controls .group{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .hint{
+    margin:0; text-align:center; font-size:13px; font-weight:700;
+    color:var(--ink-soft); line-height:1.4;
+  }
+  .hint kbd{
+    font:inherit; font-size:12px; background:#fff; border:1.5px solid var(--line);
+    border-radius:6px; padding:0 5px;
+  }
+
+  /* ---------- dialog ---------- */
+  dialog{
+    border:3px solid var(--ink); border-radius:22px;
+    padding:0; max-width:min(560px,92vw); width:100%;
+    background:var(--paper-2); color:var(--ink);
+    box-shadow:0 10px 0 rgba(34,48,75,.25);
+  }
+  dialog::backdrop{ background:rgba(34,48,75,.45); backdrop-filter:blur(2px); }
+  dialog form{ padding:20px; display:flex; flex-direction:column; gap:12px; }
+  dialog h2{ margin:0; font-size:22px; }
+  dialog p{ margin:0; font-size:14px; line-height:1.45; color:var(--ink-soft); font-weight:600; }
+  dialog textarea{
+    font:inherit; font-size:16px; line-height:1.5;
+    border:2.5px solid var(--ink); border-radius:14px;
+    padding:10px 12px; background:#fff; color:var(--ink);
+    min-height:140px; resize:vertical; width:100%;
+  }
+  dialog textarea::placeholder{ color:#b3bdcc; font-weight:600; }
+  dialog .row{ display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:2px; }
+  dialog .row .spacer{ flex:1 1 auto; }
+
+  @media (max-width:640px){
+    .app{ gap:8px; padding-top:10px; }
+    header.top{ align-items:flex-start; }
+    .settings{ width:100%; justify-content:flex-start; }
+    .logo{ width:40px; height:40px; font-size:20px; }
+    main.card{ min-height:240px; padding:8px 8px 4px; }
+    .caption{ min-height:44px; }
+    .btn{ padding:8px 13px; }
+    .ask label, .ask .tip{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+    }
+    .ask input{ min-height:50px; font-size:22px; }
+    .hint{ display:none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ scroll-behavior:auto !important; }
+    .hints .ring{ animation:none; opacity:.55; }
+    .btn.glow{ animation:none; }
+  }
+  @media print{
+    body{ background:#fff; }
+    .settings, nav.tabs, .ask, .controls, .hint, .toast, .badge{ display:none !important; }
+    main.card{ border:0; box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">✏️</div>
+      <h1>Letter Trace</h1>
+    </div>
+    <div class="settings">
+      <div class="seg" role="group" aria-label="Letter case">
+        <button type="button" data-case="lower" aria-pressed="true" title="Lowercase">abc</button>
+        <button type="button" data-case="title" aria-pressed="false" title="Capital first letter">Abc</button>
+        <button type="button" data-case="upper" aria-pressed="false" title="All capitals">ABC</button>
+      </div>
+      <div class="seg" role="group" aria-label="Guide lines">
+        <button type="button" data-guides="full" aria-pressed="true" title="Lines, dots, numbers and arrows">Full guides</button>
+        <button type="button" data-guides="dots" aria-pressed="false" title="Lines and start dots">Dots</button>
+        <button type="button" data-guides="base" aria-pressed="false" title="Baseline only">Line</button>
+      </div>
+      <button type="button" class="btn small" id="btnWords">My words</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Choose what to practice">
+    <button type="button" data-mode="letter" aria-pressed="false">One letter</button>
+    <button type="button" data-mode="word" aria-pressed="true">A word</button>
+    <button type="button" data-mode="az" aria-pressed="false">A–Z</button>
+    <button type="button" data-mode="digits" aria-pressed="false">0–9</button>
+    <button type="button" data-mode="common" aria-pressed="false">Common words</button>
+    <button type="button" data-mode="custom" aria-pressed="false" hidden>My words</button>
+  </nav>
+
+  <div class="ask" id="ask">
+    <label for="wordInput">Type a letter or word</label>
+    <input id="wordInput" type="text" inputmode="text" autocomplete="off"
+           autocapitalize="off" autocorrect="off" spellcheck="false"
+           maxlength="24" placeholder="cat" aria-describedby="askTip">
+    <span class="tip" id="askTip">letters and numbers only</span>
+  </div>
+
+  <main class="card" id="card" data-phase="demo">
+    <div class="badge" id="badge" hidden></div>
+    <div class="sheetwrap" id="sheetwrap">
+      <div class="sheet" id="sheet">
+        <svg id="svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Letter practice">
+      </div>
+    </div>
+    <div class="caption">
+      <span class="emoji" id="emoji" aria-hidden="true"></span>
+      <span class="word" id="label" aria-live="polite"></span>
+    </div>
+    <div class="toast" id="toast" aria-live="polite"></div>
+    <div class="stars" id="stars" aria-hidden="true"></div>
+  </main>
+
+  <div class="controls">
+    <div class="group">
+      <button type="button" class="btn nav" id="btnPrev" aria-label="Previous" hidden>←</button>
+      <button type="button" class="btn primary" id="btnPlay">▶ Play</button>
+      <button type="button" class="btn" id="btnStep">Step</button>
+      <button type="button" class="btn nav" id="btnNext" aria-label="Next" hidden>→</button>
+    </div>
+    <div class="group">
+      <button type="button" class="btn" id="btnReplay" aria-label="Replay from the start">↺ Replay</button>
+      <button type="button" class="btn gold" id="btnTrace">✏️ Trace it</button>
+    </div>
+  </div>
+
+  <p class="hint">
+    <kbd>Space</kbd> play / pause &nbsp;·&nbsp; <kbd>←</kbd> <kbd>→</kbd> change word &nbsp;·&nbsp; tap a letter to replay it
+    &nbsp;·&nbsp; no account, no ads, works offline
+  </p>
+</div>
+
+<dialog id="wordDialog">
+  <form method="dialog" id="wordForm">
+    <h2>My word list</h2>
+    <p>Type this week’s words — one per line, or separated by commas. They stay on this device only.</p>
+    <textarea id="customText" placeholder="cat&#10;dog&#10;sun&#10;the" aria-label="My words"></textarea>
+    <div class="row">
+      <button type="button" class="btn small" id="btnClearWords">Clear list</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn small" id="btnCancelWords">Cancel</button>
+      <button type="submit" class="btn small primary" id="btnSaveWords">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<noscript><p style="max-width:60ch;margin:2rem auto;font-family:sans-serif">Letter Trace needs JavaScript switched on to draw the letters.</p></noscript>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =====================================================================
+     Glyph data — one entry per letter and digit.
+     Coordinates: cap top y=24, x-height y=44, baseline y=74,
+     ascender y=14, descender y=96.  Ink stays inside [3, w-3].
+     Each stroke is drawn in order, in this path direction.
+     ===================================================================== */
+  const GLYPHS = {
+    A:{w:46,s:["M23 24 L3 74","M23 24 L43 74","M10 56 L36 56"]},
+    B:{w:40,s:["M3 24 L3 74","M3 24 C17 24 29 27 29 36 C29 44 20 48 3 49","M3 49 C26 49 37 53 37 61 C37 69 26 74 3 74"]},
+    C:{w:44,s:["M41 30 C37 25 31 23 25 23 C12 23 3 32 3 49 C3 66 12 75 25 75 C31 75 37 73 41 68"]},
+    D:{w:44,s:["M3 24 L3 74","M3 24 C30 24 41 32 41 49 C41 66 30 74 3 74"]},
+    E:{w:38,s:["M3 24 L3 74","M3 24 L35 24","M3 49 L32 49","M3 74 L35 74"]},
+    F:{w:36,s:["M3 24 L3 74","M3 24 L33 24","M3 48 L29 48"]},
+    G:{w:46,s:["M41 30 C37 25 31 23 25 23 C12 23 3 32 3 49 C3 66 12 75 25 75 C35 75 42 70 43 62 L43 52 L29 52"]},
+    H:{w:44,s:["M3 24 L3 74","M41 24 L41 74","M3 49 L41 49"]},
+    I:{w:14,s:["M7 24 L7 74"]},
+    J:{w:32,s:["M26 24 L26 60 C26 70 21 76 14 76 C7 76 3 72 3 66"]},
+    K:{w:40,s:["M3 24 L3 74","M35 24 L3 54","M3 54 L37 74"]},
+    L:{w:36,s:["M3 24 L3 74","M3 74 L33 74"]},
+    M:{w:48,s:["M3 74 L3 24 L22 54 L41 24 L41 74"]},
+    N:{w:44,s:["M3 74 L3 24 L39 74 L39 24"]},
+    O:{w:44,s:["M22 23 C9 23 3 33 3 49 C3 65 9 75 22 75 C35 75 41 65 41 49 C41 33 35 23 22 23"]},
+    P:{w:38,s:["M3 24 L3 74","M3 24 C19 24 33 27 33 36 C33 45 19 49 3 49"]},
+    Q:{w:46,s:["M22 23 C9 23 3 33 3 49 C3 65 9 75 22 75 C35 75 41 65 41 49 C41 33 35 23 22 23","M28 62 L42 80"]},
+    R:{w:40,s:["M3 24 L3 74","M3 24 C19 24 33 27 33 36 C33 45 19 49 3 49","M17 49 L37 74"]},
+    S:{w:44,s:["M40 30 C37 25 31 23 24 23 C14 23 6 28 6 35 C6 42 12 45 22 47 C32 49 40 53 40 61 C40 69 32 75 23 75 C15 75 8 72 5 67"]},
+    T:{w:44,s:["M3 24 L41 24","M22 24 L22 74"]},
+    U:{w:42,s:["M3 24 L3 56 C3 68 10 75 21 75 C32 75 39 68 39 56 L39 24"]},
+    V:{w:42,s:["M3 24 L21 74 L39 24"]},
+    W:{w:46,s:["M3 24 L11 74 L23 42 L35 74 L43 24"]},
+    X:{w:42,s:["M3 24 L39 74","M39 24 L3 74"]},
+    Y:{w:42,s:["M3 24 L21 50 L21 74","M39 24 L21 50"]},
+    Z:{w:40,s:["M3 24 L37 24 L3 74 L37 74"]},
+
+    a:{w:34,s:["M17 44 C9 44 4 50 4 59 C4 68 9 74 17 74 C25 74 30 68 30 59 C30 50 25 44 17 44","M30 44 L30 74"]},
+    b:{w:34,s:["M3 14 L3 74","M3 47 C15 43 29 47 29 59 C29 71 16 76 3 74"]},
+    c:{w:32,s:["M29 49 C26 45 22 44 17 44 C9 44 3 50 3 59 C3 68 9 74 17 74 C22 74 26 73 29 69"]},
+    d:{w:34,s:["M31 14 L31 74","M31 47 C18 43 3 48 3 60 C3 71 18 76 31 73"]},
+    e:{w:32,s:["M5 57 L31 57 C31 49 26 44 18 44 C11 44 5 48 5 57 C5 66 10 73 18 73 C24 73 28 70 29 67"]},
+    f:{w:30,s:["M26 17 C19 14 13 18 13 26 L13 74","M3 44 L23 44"]},
+    g:{w:34,s:["M17 44 C9 44 4 50 4 59 C4 68 9 74 17 74 C25 74 30 68 30 59 C30 50 25 44 17 44","M30 44 L30 84 C30 92 25 96 18 96 C12 96 7 93 5 89"]},
+    h:{w:32,s:["M3 14 L3 74","M3 52 C5 46 10 44 15 44 C23 44 29 49 29 56 L29 74"]},
+    i:{w:12,s:["M6 44 L6 74","M6 31 L6 32"]},
+    j:{w:26,s:["M22 44 L22 86 C22 93 17 96 11 96 C6 96 3 93 2 89","M22 31 L22 32"]},
+    k:{w:30,s:["M3 14 L3 74","M3 56 L23 44","M3 56 L27 74"]},
+    l:{w:12,s:["M6 14 L6 74"]},
+    m:{w:42,s:["M3 44 L3 74","M3 51 C5 46 9 44 13 44 C18 44 21 48 21 54 L21 74","M21 51 C23 46 27 44 31 44 C36 44 39 48 39 54 L39 74"]},
+    n:{w:28,s:["M3 44 L3 74","M3 51 C5 46 9 44 13 44 C18 44 21 48 21 54 L21 74"]},
+    o:{w:30,s:["M15 44 C7 44 3 50 3 59 C3 68 7 74 15 74 C23 74 27 68 27 59 C27 50 23 44 15 44"]},
+    p:{w:32,s:["M3 44 L3 96","M3 47 C15 43 28 47 28 59 C28 71 16 76 3 74"]},
+    q:{w:34,s:["M31 44 L31 96","M31 47 C18 43 3 48 3 60 C3 71 18 76 31 73"]},
+    r:{w:26,s:["M3 44 L3 74","M3 51 C5 46 9 44 14 44 C17 44 20 45 22 47"]},
+    s:{w:32,s:["M27 48 C25 45 21 44 16 44 C10 44 5 47 5 52 C5 57 9 59 15 60 C21 61 27 63 27 68 C27 72 22 74 16 74 C11 74 6 72 4 69"]},
+    t:{w:30,s:["M13 32 L13 67 C13 72 16 74 20 74 C22 74 24 73 25 71","M3 44 L22 44"]},
+    u:{w:28,s:["M3 44 L3 60 C3 69 8 74 14 74 C20 74 23 69 23 60 L23 44"]},
+    v:{w:28,s:["M3 44 L14 74 L25 44"]},
+    w:{w:32,s:["M2 44 L8 74 L16 54 L24 74 L30 44"]},
+    x:{w:28,s:["M3 44 L25 74","M25 44 L3 74"]},
+    y:{w:30,s:["M3 44 L14 68","M25 44 L13 88 C11 93 8 95 4 96"]},
+    z:{w:28,s:["M3 44 L25 44 L3 74 L25 74"]},
+
+    "0":{w:38,s:["M19 23 C9 23 3 32 3 49 C3 66 9 75 19 75 C29 75 35 66 35 49 C35 32 29 23 19 23"]},
+    "1":{w:30,s:["M7 33 L17 24 L17 74","M3 74 L27 74"]},
+    "2":{w:38,s:["M3 35 C3 27 9 23 18 23 C26 23 33 28 33 35 C33 43 26 48 16 55 C9 60 4 66 3 74 L35 74"]},
+    "3":{w:36,s:["M4 30 C6 26 11 23 17 23 C25 23 30 27 30 33 C30 40 24 44 16 45 C24 47 31 51 31 58 C31 67 25 75 16 75 C9 75 4 72 2 67"]},
+    "4":{w:38,s:["M25 24 L3 58 L35 58","M25 24 L25 74"]},
+    "5":{w:36,s:["M31 24 L7 24 L5 46 C9 44 13 43 17 43 C26 43 32 49 32 58 C32 68 26 75 17 75 C10 75 5 72 2 67"]},
+    "6":{w:36,s:["M27 27 C24 24 20 23 16 23 C9 23 4 30 4 40 L4 57 C4 68 10 75 18 75 C26 75 31 70 31 61 C31 52 25 47 17 47 C11 47 6 50 4 56"]},
+    "7":{w:36,s:["M3 24 L31 24 L12 74"]},
+    "8":{w:36,s:["M17 23 C10 23 6 27 6 33 C6 39 10 43 17 45 C25 47 30 51 30 58 C30 66 24 75 17 75 C9 75 4 66 4 58 C4 51 9 47 17 45 C24 43 28 39 28 33 C28 27 24 23 17 23"]},
+    "9":{w:36,s:["M31 42 C31 31 25 24 17 24 C9 24 4 30 4 39 C4 48 10 53 18 53 C25 53 30 49 31 43 L31 56 C31 67 27 75 19 75 C15 75 12 74 10 72"]}
+  };
+
+  /* Common words for first graders: short, concrete, picturable,
+     drawn from kid-texto's grade-1 lexicon. */
+  const COMMON = [
+    ["ant","🐜"],["apple","🍎"],["arm","💪"],["baby","👶"],["bag","🎒"],
+    ["ball","⚽"],["bear","🐻"],["bed","🛏️"],["bee","🐝"],["bell","🔔"],
+    ["bird","🐦"],["boat","⛵"],["book","📚"],["boot","👢"],["box","📦"],
+    ["boy","👦"],["bread","🍞"],["bus","🚌"],["cake","🎂"],["car","🚗"],
+    ["cat","🐱"],["chair","🪑"],["chicken","🐔"],["cloud","☁️"],["coat","🧥"],
+    ["cow","🐄"],["cup","☕"],["dad","👨"],["dog","🐶"],["doll","🪆"],
+    ["door","🚪"],["duck","🦆"],["ear","👂"],["egg","🥚"],["eye","👁️"],
+    ["farm","🚜"],["fish","🐟"],["five","5️⃣"],["flower","🌸"],["fly","🪰"],
+    ["foot","🦶"],["fork","🍴"],["fox","🦊"],["frog","🐸"],["game","🎮"],
+    ["girl","👧"],["goat","🐐"],["grass","🌱"],["hand","✋"],["hat","👒"],
+    ["hen","🐓"],["hill","⛰️"],["home","🏠"],["horse","🐴"],["ice","🧊"],
+    ["jam","🍓"],["key","🔑"],["kid","🧒"],["king","👑"],["kite","🪁"],
+    ["lake","🏞️"],["leaf","🍃"],["leg","🦵"],["lion","🦁"],["milk","🥛"],
+    ["moon","🌙"],["mom","👩"],["mouse","🐭"],["nest","🪺"],["nose","👃"],
+    ["owl","🦉"],["pan","🍳"],["pen","🖊️"],["pig","🐷"],["pin","📌"],
+    ["plant","🪴"],["pot","🍲"],["rain","🌧️"],["rat","🐀"],["ring","💍"],
+    ["rock","🪨"],["rose","🌹"],["sad","😢"],["seed","🌱"],["ship","🚢"],
+    ["shoe","👟"],["six","6️⃣"],["sky","🌤️"],["sock","🧦"],["star","⭐"],
+    ["sun","☀️"],["table","🍽️"],["tea","🍵"],["tent","⛺"],["three","3️⃣"],
+    ["tiger","🐯"],["toy","🧸"],["train","🚆"],["tree","🌳"],["truck","🚚"],
+    ["two","2️⃣"],["van","🚐"],["water","💧"],["web","🕸️"],["worm","🪱"],
+    ["zebra","🦓"]
+  ];
+
+  const EMOJI = Object.fromEntries(COMMON);
+  EMOJI.dog = "🐶"; EMOJI.sun = "☀️";
+
+  const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const DIGITS = "0123456789".split("");
+  const MAXLEN = 12;
+
+  const METRICS = { asc:14, cap:24, xh:44, base:74, desc:96 };
+  const KERN = 8;          // gap between letters
+  const PADX = 26;         // sheet side padding
+  const ROWH = 130;        // height of one ruled row
+  const TOP = 8;           // top padding
+  const MAXROW = 430;      // wrap width in glyph units
+
+  const SVGNS = "http://www.w3.org/2000/svg";
+
+  /* ---------------- storage ---------------- */
+  const store = {
+    get(key, fallback){
+      try{
+        const raw = localStorage.getItem("letterTrace.v1." + key);
+        return raw == null ? fallback : JSON.parse(raw);
+      }catch(e){ return fallback; }
+    },
+    set(key, value){
+      try{ localStorage.setItem("letterTrace.v1." + key, JSON.stringify(value)); }
+      catch(e){ /* private mode: keep going without saving */ }
+    }
+  };
+
+  function shuffled(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function loadCommonOrder(){
+    const all = COMMON.map(p => p[0]);
+    const saved = store.get("commonOrder", null);
+    let order;
+    if(Array.isArray(saved) && saved.length){
+      order = saved.filter(w => all.includes(w));
+      const missing = shuffled(all.filter(w => !order.includes(w)));
+      order = order.concat(missing);
+      if(order.length !== saved.length) store.set("commonOrder", order);
+    }else{
+      order = shuffled(all);
+      store.set("commonOrder", order);
+    }
+    return order;
+  }
+
+  /* ---------------- state ---------------- */
+  const S = {
+    mode: "word",
+    input: "cat",
+    case: store.get("case", "lower"),
+    guides: store.get("guides", "full"),
+    az: 0,
+    digits: 0,
+    common: 0,
+    custom: 0,
+    customWords: (store.get("customWords", []) || []).filter(w => typeof w === "string"),
+    commonOrder: loadCommonOrder(),
+    phase: "demo",
+    playing: false,
+    stopAt: null
+  };
+
+  if(!["lower","title","upper"].includes(S.case)) S.case = "lower";
+  if(!["full","dots","base"].includes(S.guides)) S.guides = "full";
+
+  /* ---------------- dom ---------------- */
+  const $ = id => document.getElementById(id);
+  const svg = $("svg");
+  const sheet = $("sheet");
+  const sheetwrap = $("sheetwrap");
+  const card = $("card");
+  const badge = $("badge");
+  const label = $("label");
+  const emojiEl = $("emoji");
+  const toastEl = $("toast");
+  const starsEl = $("stars");
+  const wordInput = $("wordInput");
+  const askRow = $("ask");
+  const btnPlay = $("btnPlay");
+  const btnStep = $("btnStep");
+  const btnReplay = $("btnReplay");
+  const btnTrace = $("btnTrace");
+  const btnPrev = $("btnPrev");
+  const btnNext = $("btnNext");
+  const tabs = $("tabs");
+
+  let letters = [];       // per rendered letter
+  let sheetBox = { w: 300, h: 160 };
+  let autoplayTimer = 0;
+  let toastTimer = 0;
+  let rafId = 0;
+  let lastT = 0;
+  let segs = [];
+  let segIdx = 0;
+  let segT = 0;
+  let pencilEl = null;
+
+  const trace = { li: 0, si: 0, prog: 0, drawing: false, points: [], target: null, ok: true, done: false };
+
+  /* =====================================================================
+     Text helpers
+     ===================================================================== */
+  function cleanInput(str){
+    let out = "";
+    let count = 0;
+    for(const ch of str){
+      if(/[A-Za-z0-9]/.test(ch)){
+        if(count < MAXLEN){ out += ch; count++; }
+      }else if(/\s/.test(ch)){
+        if(out && !out.endsWith(" ")) out += " ";
+      }
+    }
+    return out.replace(/^\s+/, "");
+  }
+
+  function applyCase(text){
+    if(S.case === "upper") return text.toUpperCase();
+    if(S.case === "title"){
+      return text.replace(/(^|[\s])(\p{L})/gu, (m, sp, ch) => sp + ch.toUpperCase());
+    }
+    return text.toLowerCase();
+  }
+
+  function rawText(){
+    switch(S.mode){
+      case "letter": {
+        const t = S.input.trim();
+        return t ? t[0] : "a";
+      }
+      case "word": return S.input.trim();
+      case "az": return UPPER[S.az];
+      case "digits": return DIGITS[S.digits];
+      case "common": {
+        const w = S.commonOrder[S.common];
+        return w || "cat";
+      }
+      case "custom": {
+        return S.customWords[Math.min(S.custom, S.customWords.length - 1)] || "";
+      }
+      default: return "cat";
+    }
+  }
+
+  function listInfo(){
+    switch(S.mode){
+      case "az": return { i: S.az, n: 26 };
+      case "digits": return { i: S.digits, n: 10 };
+      case "common": return { i: S.common, n: S.commonOrder.length };
+      case "custom": return { i: S.custom, n: S.customWords.length };
+      default: return null;
+    }
+  }
+
+  /* =====================================================================
+     Layout
+     ===================================================================== */
+  function planLayout(text){
+    const rows = [];
+    let row = { items: [], w: 0 };
+    let x = 0;
+
+    for(const ch of text){
+      if(ch === " "){
+        x += 24;
+        continue;
+      }
+      const g = GLYPHS[ch];
+      if(!g) continue;
+      if(row.items.length && x + g.w > MAXROW){
+        row.w = row.items[row.items.length - 1].x + row.items[row.items.length - 1].g.w;
+        rows.push(row);
+        row = { items: [], w: 0 };
+        x = 0;
+      }
+      row.items.push({ ch, x, g });
+      x += g.w + KERN;
+    }
+    if(row.items.length){
+      const last = row.items[row.items.length - 1];
+      row.w = last.x + last.g.w;
+      rows.push(row);
+    }
+
+    const maxRowW = rows.reduce((m, r) => Math.max(m, r.w), 0);
+    const W = Math.max(maxRowW + PADX * 2, 132);
+    const H = TOP + Math.max(0, rows.length - 1) * ROWH + METRICS.desc + 14;
+    return { rows, W, H };
+  }
+
+  function el(name, attrs, parent){
+    const node = document.createElementNS(SVGNS, name);
+    if(attrs) for(const k in attrs) node.setAttribute(k, attrs[k]);
+    if(parent) parent.appendChild(node);
+    return node;
+  }
+
+  function drawGuides(plan){
+    const g = el("g", { class: "guides", "aria-hidden": "true" }, svg);
+    const x0 = 10;
+    const x1 = plan.W - 10;
+
+    plan.rows.forEach((row, ri) => {
+      const oy = TOP + ri * ROWH;
+      const line = (y, cls) => el("line", { x1: x0, y1: oy + y, x2: x1, y2: oy + y, class: cls }, g);
+      if(S.guides !== "base"){
+        line(METRICS.asc, "gline faint");
+        line(METRICS.cap, "gline faint");
+        line(METRICS.xh, "gline mid");
+        line(METRICS.desc, "gline faint");
+      }
+      line(METRICS.base, "gline base");
+    });
+  }
+
+  function buildStage(plan){
+    svg.innerHTML = "";
+    svg.setAttribute("viewBox", `0 0 ${plan.W} ${plan.H}`);
+    drawGuides(plan);
+
+    letters = [];
+    let li = 0;
+
+    plan.rows.forEach((row, ri) => {
+      const rowLeft = PADX + (plan.W - PADX * 2 - row.w) / 2;
+      const oy = TOP + ri * ROWH;
+
+      row.items.forEach(item => {
+        const gx = rowLeft + item.x;
+        const g = el("g", {
+          class: "glyph", "data-li": String(li),
+          transform: `translate(${gx},${oy})`
+        }, svg);
+
+        const ghostGroup = el("g", { class: "ghosts" }, g);
+        const animGroup = el("g", { class: "anims" }, g);
+        const hintsGroup = el("g", { class: "hints" }, g);
+        const inkEl = el("polyline", { class: "tink", points: "" }, g);
+        inkEl.style.display = "none";
+
+        const strokes = item.g.s.map(d => {
+          el("path", { d, class: "ghost" }, ghostGroup);
+          const anim = el("path", { d, class: "drop", pathLength: "1" }, animGroup);
+          return anim;
+        });
+
+        el("rect", {
+          class: "hit", x: "-4", y: "4",
+          width: String(item.g.w + 8), height: "96"
+        }, g);
+
+        letters.push({
+          ch: item.ch, node: g, strokes,
+          hintNode: hintsGroup, ink: inkEl,
+          samples: null, done: false
+        });
+        li++;
+      });
+    });
+
+    // pencil lives above every letter
+    const p = el("g", { class: "pencil", "aria-hidden": "true" }, svg);
+    p.style.display = "none";
+    p.innerHTML =
+      '<path class="body" d="M7 -4.6 L36 -4.6 L36 4.6 L7 4.6 Z"/>' +
+      '<path class="wood" d="M0 0 L7 -4.6 L7 4.6 Z"/>' +
+      '<path class="lead" d="M0 0 L2.6 -1.7 L2.6 1.7 Z"/>' +
+      '<path class="band" d="M32 -4.6 L36 -4.6 L36 4.6 L32 4.6 Z"/>' +
+      '<path class="eraser" d="M36 -4.6 L44 -4.6 L44 4.6 L36 4.6 Z"/>';
+    pencilEl = p;
+
+    // sample each stroke now, while the geometry is laid out
+    letters.forEach(L => {
+      L.samples = L.strokes.map(path => samplePath(path, 2));
+    });
+
+    sheetBox = { w: plan.W, h: plan.H };
+    fitSheet();
+    attachLetterClicks();
+  }
+
+  function fitSheet(){
+    const availableW = Math.max(200, sheetwrap.clientWidth - 8);
+    const cap = window.innerWidth < 640 ? 0.34 : 0.42;
+    const availableH = Math.max(150, Math.min(window.innerHeight * cap, 430));
+    const scale = Math.min(availableW / sheetBox.w, availableH / sheetBox.h);
+    sheet.style.width = Math.round(sheetBox.w * scale) + "px";
+    sheet.style.height = Math.round(sheetBox.h * scale) + "px";
+  }
+
+  function samplePath(path, step){
+    const total = path.getTotalLength();
+    const n = Math.max(2, Math.ceil(total / step));
+    const pts = [];
+    for(let i = 0; i <= n; i++){
+      const len = (total * i) / n;
+      const pt = path.getPointAtLength(len);
+      pts.push({ x: pt.x, y: pt.y, len });
+    }
+    return { pts, total };
+  }
+
+  function attachLetterClicks(){
+    letters.forEach((L, i) => {
+      L.node.addEventListener("click", () => {
+        if(S.phase === "trace") return;
+        startDemo(i);
+        showToast(`Letter ${L.ch}`);
+      });
+    });
+  }
+
+  /* =====================================================================
+     Hints: start dots, numbers, arrows
+     ===================================================================== */
+  function clearHints(L){
+    while(L.hintNode.firstChild) L.hintNode.removeChild(L.hintNode.firstChild);
+  }
+
+  function hintsFor(L, opts){
+    clearHints(L);
+    if(S.guides === "base" || S.phase === "trace") return;
+
+    const only = opts && typeof opts.stroke === "number" ? opts.stroke : -1;
+    const gw = (GLYPHS[L.ch] && GLYPHS[L.ch].w) || 30;
+    const cx = gw / 2, cy = 55;
+    const placed = [];
+
+    L.strokes.forEach((path, si) => {
+      if(only >= 0 && si !== only) return;
+      const sample = L.samples[si];
+      const p0 = sample.pts[0];
+      const total = sample.total;
+
+      el("circle", { cx: p0.x, cy: p0.y, r: "3.8", class: "dot" }, L.hintNode);
+
+      if(S.guides !== "full" || total <= 14) return;
+
+      // direction chevron a little way along the stroke
+      const at = Math.min(total - 1, 11);
+      const a = path.getPointAtLength(at);
+      const b = path.getPointAtLength(Math.min(total, at + 3));
+      const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+      el("path", {
+        d: "M-3.2 -3.2 L2.2 0 L-3.2 3.2",
+        class: "arrow",
+        transform: `translate(${a.x},${a.y}) rotate(${ang})`
+      }, L.hintNode);
+
+      // the stroke number sits outside the letter, clear of every other number
+      let ux = p0.x - cx, uy = p0.y - cy;
+      const ul = Math.hypot(ux, uy) || 1;
+      ux /= ul; uy /= ul;
+      let dist = 11;
+      let lx = p0.x + ux * dist;
+      let ly = p0.y + uy * dist;
+      let guard = 0;
+      while(guard++ < 8 && placed.some(q => Math.hypot(q.x - lx, q.y - ly) < 11)){
+        dist += 10;
+        lx = p0.x + ux * dist;
+        ly = p0.y + uy * dist;
+      }
+      placed.push({ x: lx, y: ly });
+
+      const t = el("text", { x: String(lx), y: String(ly), class: "num" }, L.hintNode);
+      t.textContent = String(si + 1);
+    });
+  }
+
+  function showTraceHint(){
+    const L = letters[trace.li];
+    if(!L) return;
+    clearHints(L);
+    if(S.guides === "base") return;
+    const sample = L.samples[trace.si];
+    if(!sample) return;
+    const p0 = sample.pts[0];
+    el("circle", { cx: p0.x, cy: p0.y, r: "11", class: "ring" }, L.hintNode);
+    el("circle", { cx: p0.x, cy: p0.y, r: "4.2", class: "dot" }, L.hintNode);
+  }
+
+  /* =====================================================================
+     Demo animation
+     ===================================================================== */
+  function strokeDuration(path){
+    const len = path.getTotalLength();
+    return Math.max(330, Math.min(1500, len * 6.2));
+  }
+
+  function buildTimeline(startLi){
+    const out = [];
+    for(let li = startLi; li < letters.length; li++){
+      const L = letters[li];
+      L.strokes.forEach((path, si) => {
+        out.push({ type: "stroke", li, si, dur: strokeDuration(path) });
+        if(si < L.strokes.length - 1) out.push({ type: "hold", dur: 240 });
+      });
+      if(li < letters.length - 1) out.push({ type: "hold", dur: 520 });
+    }
+    return out;
+  }
+
+  function resetDemo(startLi){
+    letters.forEach((L, li) => {
+      L.strokes.forEach(path => {
+        path.classList.remove("live", "traced");
+        if(li < startLi){
+          path.style.strokeDashoffset = "0";
+          path.classList.add("done");
+        }else{
+          path.classList.remove("done");
+          path.style.strokeDashoffset = "1";
+        }
+      });
+      L.ink.style.display = "none";
+      L.ink.setAttribute("points", "");
+      L.node.classList.remove("dim");
+      L.node.classList.toggle("active", li === startLi);
+    });
+    if(pencilEl) pencilEl.style.display = "none";
+    if(letters[startLi]) hintsFor(letters[startLi]);
+  }
+
+  function startDemo(startLi){
+    startLi = Math.max(0, Math.min(startLi || 0, letters.length - 1));
+    if(!letters.length) return;
+    clearTimeout(autoplayTimer);
+    stopTicking();
+    S.phase = "demo";
+    card.dataset.phase = "demo";
+    syncPhaseButtons();
+    resetDemo(startLi);
+    segs = buildTimeline(startLi);
+    segIdx = 0;
+    segT = 0;
+    S.stopAt = null;
+    playDemo();
+  }
+
+  function playDemo(){
+    if(S.phase !== "demo" || !segs.length) return;
+    if(segIdx >= segs.length){ restartFromCurrent(); return; }
+    S.playing = true;
+    lastT = 0;
+    stopTicking();
+    rafId = requestAnimationFrame(tick);
+    syncTransport();
+  }
+
+  function stopTicking(){
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
+  function pauseDemo(){
+    S.playing = false;
+    stopTicking();
+    lastT = 0;
+    syncTransport();
+  }
+
+  function restartFromCurrent(){
+    startDemo(0);
+  }
+
+  function tick(t){
+    rafId = 0;
+    if(!S.playing || S.phase !== "demo") return;
+    if(!lastT) lastT = t;
+    let dt = t - lastT;
+    lastT = t;
+    if(dt > 120) dt = 120;
+    segT += dt;
+
+    let guard = 0;
+    while(segIdx < segs.length && guard++ < 500){
+      const seg = segs[segIdx];
+      if(seg.type === "hold"){
+        if(segT >= seg.dur){
+          segT -= seg.dur;
+          segIdx++;
+        }else break;
+      }else{
+        const p = Math.min(1, segT / seg.dur);
+        applyStroke(seg, p);
+        if(p >= 1){
+          completeStrokeSegment(seg);
+          segT -= seg.dur;
+          segIdx++;
+          if(S.stopAt !== null && segIdx > S.stopAt){
+            S.stopAt = null;
+            if(segIdx >= segs.length) finishDemo();
+            else pauseDemo();
+            return;
+          }
+        }else break;
+      }
+    }
+
+    if(segIdx >= segs.length){
+      finishDemo();
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function applyStroke(seg, p){
+    const L = letters[seg.li];
+    if(!L) return;
+    const path = L.strokes[seg.si];
+    path.style.strokeDashoffset = String(1 - p);
+    path.classList.add("live");
+
+    // pencil follows the tip
+    const total = L.samples[seg.si].total;
+    const at = Math.max(0, Math.min(total, total * p));
+    const pt = path.getPointAtLength(at);
+    const pt2 = path.getPointAtLength(Math.min(total, at + 0.6));
+    const ang = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI;
+    const gx = L.node.getAttribute("transform");
+    const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(gx || "");
+    const ox = m ? parseFloat(m[1]) : 0;
+    const oy = m ? parseFloat(m[2]) : 0;
+    if(pencilEl){
+      pencilEl.style.display = "";
+      pencilEl.setAttribute("transform",
+        `translate(${ox + pt.x},${oy + pt.y}) rotate(${ang + 180}) scale(0.52)`);
+    }
+  }
+
+  function completeStrokeSegment(seg){
+    const L = letters[seg.li];
+    if(!L) return;
+    const path = L.strokes[seg.si];
+    path.classList.remove("live");
+    path.classList.add("done");
+    path.style.strokeDashoffset = "0";
+
+    // find the next stroke, skipping the pause segments between strokes/letters
+    let j = segIdx + 1;
+    while(j < segs.length && segs[j].type !== "stroke") j++;
+    if(j < segs.length && segs[j].li !== seg.li){
+      clearHints(L);
+      L.node.classList.remove("active");
+      L.node.classList.add("dim");
+      const NL = letters[segs[j].li];
+      if(NL){
+        NL.node.classList.remove("dim");
+        NL.node.classList.add("active");
+        hintsFor(NL);
+      }
+    }
+  }
+
+  function finishDemo(){
+    S.playing = false;
+    stopTicking();
+    if(pencilEl) pencilEl.style.display = "none";
+    letters.forEach(clearHints);
+    btnTrace.classList.add("glow");
+    syncTransport();
+    showToast("Your turn! Tap Trace it ✏️");
+  }
+
+  /* =====================================================================
+     Tracing
+     ===================================================================== */
+  function enterTrace(){
+    if(!letters.length) return;
+    pauseDemo();
+    S.phase = "trace";
+    card.dataset.phase = "trace";
+    btnTrace.classList.remove("glow");
+    syncPhaseButtons();
+
+    letters.forEach(L => {
+      L.strokes.forEach(p => { p.classList.remove("traced", "live", "done"); });
+      clearHints(L);
+      L.node.classList.remove("active", "dim");
+      L.ink.style.display = "none";
+      L.ink.setAttribute("points", "");
+      L.ink.classList.remove("off");
+    });
+
+    trace.li = 0;
+    trace.si = 0;
+    trace.prog = 0;
+    trace.drawing = false;
+    focusLetter(0);
+    letters[0].node.classList.add("active");
+    showTraceHint();
+    showToast("Start at the green dot");
+    syncTransport();
+  }
+
+  function focusLetter(i){
+    letters.forEach((L, j) => {
+      L.node.classList.toggle("active", j === i);
+      L.node.classList.toggle("dim", j !== i);
+    });
+  }
+
+  function leaveTrace(){
+    S.phase = "demo";
+    card.dataset.phase = "demo";
+    letters.forEach(L => {
+      clearHints(L);
+      L.strokes.forEach(p => p.classList.remove("traced"));
+    });
+    trace.drawing = false;
+    startDemo(0);
+  }
+
+  function toSvg(evt){
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    const ctm = svg.getScreenCTM();
+    if(!ctm) return { x: 0, y: 0 };
+    return pt.matrixTransform(ctm.inverse());
+  }
+
+  function glyphOrigin(L){
+    const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(L.node.getAttribute("transform") || "");
+    return m ? { x: parseFloat(m[1]), y: parseFloat(m[2]) } : { x: 0, y: 0 };
+  }
+
+  function currentSample(){
+    const L = letters[trace.li];
+    if(!L) return null;
+    return L.samples[trace.si];
+  }
+
+  function onPointerDown(evt){
+    if(S.phase !== "trace") return;
+    const L = letters[trace.li];
+    if(!L) return;
+    const sample = currentSample();
+    if(!sample) return;
+
+    const pt = toSvg(evt);
+    const o = glyphOrigin(L);
+    const x = pt.x - o.x, y = pt.y - o.y;
+    const start = sample.pts[0];
+    if(Math.hypot(start.x - x, start.y - y) > 22){
+      showToast("Start at the green dot");
+      showTraceHint();
+      return;
+    }
+
+    evt.preventDefault();
+    trace.drawing = true;
+    trace.prog = 0;
+    trace.ok = true;
+    trace.points = [{ x, y }];
+    L.ink.classList.remove("off");
+    L.ink.style.display = "";
+    redrawInk();
+    try{ svg.setPointerCapture(evt.pointerId); }catch(e){}
+  }
+
+  function onPointerMove(evt){
+    if(S.phase !== "trace" || !trace.drawing) return;
+    const L = letters[trace.li];
+    const sample = currentSample();
+    if(!L || !sample) return;
+    evt.preventDefault();
+
+    const pt = toSvg(evt);
+    const o = glyphOrigin(L);
+    const x = pt.x - o.x, y = pt.y - o.y;
+
+    const pts = sample.pts;
+    const from = Math.max(0, Math.floor(trace.prog) - 3);
+    const to = Math.min(pts.length - 1, Math.floor(trace.prog) + 46);
+    let best = -1, bestD = Infinity;
+    for(let i = from; i <= to; i++){
+      const d = Math.hypot(pts[i].x - x, pts[i].y - y);
+      if(d < bestD){ bestD = d; best = i; }
+    }
+
+    trace.points.push({ x, y });
+    if(trace.points.length > 900) trace.points.splice(0, 200);
+
+    const tolerance = 13;
+    if(bestD <= tolerance && best > trace.prog + 0.4){
+      trace.prog = best;
+      trace.ok = true;
+      L.ink.classList.remove("off");
+      if(trace.prog >= pts.length - 4){ redrawInk(); finishTraceStroke(); return; }
+    }else{
+      trace.ok = false;
+      L.ink.classList.add("off");
+    }
+    redrawInk();
+  }
+
+  function onPointerUp(evt){
+    if(S.phase !== "trace" || !trace.drawing) return;
+    trace.drawing = false;
+    try{ svg.releasePointerCapture(evt.pointerId); }catch(e){}
+    const sample = currentSample();
+    const L = letters[trace.li];
+    if(!sample || !L) return;
+
+    if(trace.prog >= sample.pts.length - 6 || trace.prog >= sample.pts.length * 0.94){
+      finishTraceStroke();
+    }else{
+      L.ink.classList.add("off");
+      setTimeout(() => {
+        if(S.phase !== "trace") return;
+        L.ink.style.display = "none";
+        L.ink.setAttribute("points", "");
+        L.ink.classList.remove("off");
+        trace.prog = 0;
+        trace.points = [];
+      }, 260);
+      showToast("Almost — start at the green dot");
+      showTraceHint();
+    }
+  }
+
+  function redrawInk(){
+    const L = letters[trace.li];
+    if(!L) return;
+    const o = trace.points;
+    let d = "";
+    for(let i = 0; i < o.length; i++){
+      d += (i ? " " : "") + o[i].x.toFixed(1) + "," + o[i].y.toFixed(1);
+    }
+    L.ink.setAttribute("points", d);
+  }
+
+  function finishTraceStroke(){
+    const L = letters[trace.li];
+    if(!L) return;
+    const path = L.strokes[trace.si];
+    path.classList.add("traced");
+    L.ink.style.display = "none";
+    L.ink.setAttribute("points", "");
+    trace.drawing = false;
+    trace.prog = 0;
+    trace.points = [];
+
+    if(trace.si < L.strokes.length - 1){
+      trace.si++;
+      showTraceHint();
+      showToast("Good — next stroke");
+    }else{
+      // whole letter done
+      L.done = true;
+      clearHints(L);
+      if(trace.li < letters.length - 1){
+        trace.li++;
+        trace.si = 0;
+        focusLetter(trace.li);
+        showTraceHint();
+        showToast("Nice! Next letter");
+      }else{
+        celebrate();
+      }
+    }
+  }
+
+  function celebrate(){
+    showToast("You did it! ⭐");
+    const marks = ["⭐","🌟","✨","🎉","💫"];
+    for(let i = 0; i < 9; i++){
+      const s = document.createElement("span");
+      s.textContent = marks[i % marks.length];
+      s.style.left = (10 + Math.random() * 80) + "%";
+      s.style.top = (15 + Math.random() * 60) + "%";
+      s.style.animationDelay = (Math.random() * 0.35).toFixed(2) + "s";
+      starsEl.appendChild(s);
+      setTimeout(() => s.remove(), 2400);
+    }
+  }
+
+  /* =====================================================================
+     Rendering
+     ===================================================================== */
+  function render(opts){
+    const o = opts || {};
+    pauseDemo();
+    stopTicking();
+    S.playing = false;
+    segs = [];
+    segIdx = 0;
+    segT = 0;
+
+    const text = applyCase(rawText());
+    const plan = planLayout(text);
+
+    S.phase = "demo";
+    card.dataset.phase = "demo";
+    syncPhaseButtons();
+
+    buildStage(plan);
+
+    // caption
+    const word = text.replace(/\s+/g, " ").trim();
+    label.textContent = word;
+    svg.setAttribute("aria-label", word ? `How to write: ${word}` : "Letter practice");
+    const em = EMOJI[word.toLowerCase()];
+    emojiEl.textContent = em || "";
+    emojiEl.style.display = em ? "" : "none";
+
+    // badge + navigation
+    const info = listInfo();
+    const isList = !!info;
+    if(isList && info.n > 0){
+      badge.hidden = false;
+      badge.textContent = `${Math.min(info.i + 1, info.n)} / ${info.n}`;
+    }else{
+      badge.hidden = true;
+    }
+    btnPrev.hidden = !isList;
+    btnNext.hidden = !isList;
+    btnPrev.disabled = !isList || info.n < 2;
+    btnNext.disabled = !isList || info.n < 2;
+
+    if(!letters.length){
+      showToast(S.mode === "custom" ? "Add some words with My words" : "Type a letter or word");
+      syncTransport();
+      return;
+    }
+
+    letters[0].node.classList.add("active");
+    hintsFor(letters[0]);
+    syncTransport();
+    if(o.autoplay !== false){
+      clearTimeout(autoplayTimer);
+      autoplayTimer = window.setTimeout(() => { if(S.phase === "demo") startDemo(0); }, 300);
+    }
+  }
+
+  function syncTransport(){
+    const demo = S.phase === "demo";
+    btnPlay.disabled = !demo || !letters.length;
+    btnStep.disabled = !demo || !letters.length;
+    btnReplay.disabled = !demo || !letters.length;
+    if(!demo){
+      btnPlay.textContent = "▶ Play";
+      btnTrace.textContent = "👀 Watch again";
+    }else{
+      btnPlay.textContent = S.playing ? "⏸ Pause" : (segIdx >= segs.length && segs.length ? "↻ Play again" : "▶ Play");
+      btnTrace.textContent = "✏️ Trace it";
+    }
+  }
+
+  function syncPhaseButtons(){
+    syncTransport();
+    if(S.phase === "trace") btnTrace.textContent = "👀 Watch again";
+  }
+
+  /* =====================================================================
+     Mode + navigation
+     ===================================================================== */
+  function setMode(mode){
+    if(mode === "custom" && !S.customWords.length){
+      openWordDialog();
+      return;
+    }
+    S.mode = mode;
+    if(mode === "common"){
+      S.common = Math.floor(Math.random() * S.commonOrder.length);
+    }
+
+    for(const b of tabs.querySelectorAll("button[data-mode]")){
+      b.setAttribute("aria-pressed", String(b.dataset.mode === mode));
+    }
+    askRow.hidden = !(mode === "letter" || mode === "word");
+    wordInput.placeholder = mode === "letter" ? "a" : "cat";
+
+    if(mode === "letter" || mode === "word"){
+      wordInput.value = S.input;
+      if(mode === "letter" && S.input.length > 1){
+        S.input = S.input[0];
+        wordInput.value = S.input;
+      }
+    }
+    render({ autoplay: true });
+  }
+
+  function step(delta){
+    const info = listInfo();
+    if(!info || !info.n) return;
+    let i = info.i + delta;
+    i = ((i % info.n) + info.n) % info.n;
+    if(S.mode === "az") S.az = i;
+    if(S.mode === "digits") S.digits = i;
+    if(S.mode === "common") S.common = i;
+    if(S.mode === "custom") S.custom = i;
+    render({ autoplay: true });
+  }
+
+  /* =====================================================================
+     Toast
+     ===================================================================== */
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toastEl.classList.remove("show"), 2200);
+  }
+
+  /* =====================================================================
+     Custom words
+     ===================================================================== */
+  const dialog = $("wordDialog");
+  const customText = $("customText");
+
+  function openWordDialog(){
+    customText.value = S.customWords.join("\n");
+    if(typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    customText.focus();
+  }
+
+  function saveCustomWords(){
+    const parts = customText.value.split(/[\s,;]+/);
+    const seen = new Set();
+    const words = [];
+    for(const part of parts){
+      const w = cleanInput(part).replace(/\s+/g, "");
+      if(!w) continue;
+      const k = w.toLowerCase();
+      if(seen.has(k)) continue;
+      seen.add(k);
+      words.push(w);
+      if(words.length >= 200) break;
+    }
+    S.customWords = words;
+    store.set("customWords", words);
+
+    const tab = tabs.querySelector('button[data-mode="custom"]');
+    tab.hidden = words.length === 0;
+
+    if(typeof dialog.close === "function" && dialog.open) dialog.close();
+    else dialog.removeAttribute("open");
+
+    if(words.length){
+      S.custom = 0;
+      setMode("custom");
+      showToast(`${words.length} word${words.length === 1 ? "" : "s"} saved`);
+    }else if(S.mode === "custom"){
+      setMode("word");
+      showToast("Word list cleared");
+    }
+  }
+
+  /* =====================================================================
+     Events
+     ===================================================================== */
+  tabs.addEventListener("click", evt => {
+    const b = evt.target.closest("button[data-mode]");
+    if(b) setMode(b.dataset.mode);
+  });
+
+  document.querySelectorAll(".seg button[data-case]").forEach(b => {
+    b.addEventListener("click", () => {
+      S.case = b.dataset.case;
+      store.set("case", S.case);
+      document.querySelectorAll(".seg button[data-case]").forEach(x => {
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      render({ autoplay: true });
+    });
+  });
+
+  document.querySelectorAll(".seg button[data-guides]").forEach(b => {
+    b.addEventListener("click", () => {
+      S.guides = b.dataset.guides;
+      store.set("guides", S.guides);
+      document.querySelectorAll(".seg button[data-guides]").forEach(x => {
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      render({ autoplay: true });
+    });
+  });
+
+  wordInput.addEventListener("input", () => {
+    const cleaned = cleanInput(wordInput.value);
+    if(cleaned !== wordInput.value){
+      const pos = wordInput.selectionStart;
+      wordInput.value = cleaned;
+      try{ wordInput.setSelectionRange(Math.min(pos, cleaned.length), Math.min(pos, cleaned.length)); }catch(e){}
+    }
+    S.input = cleaned;
+
+    if(S.mode === "letter" && cleaned.length > 1){
+      S.mode = "word";
+      for(const b of tabs.querySelectorAll("button[data-mode]")){
+        b.setAttribute("aria-pressed", String(b.dataset.mode === "word"));
+      }
+      askRow.hidden = false;
+    }
+    clearTimeout(autoplayTimer);
+    autoplayTimer = window.setTimeout(() => render({ autoplay: true }), 400);
+  });
+
+  wordInput.addEventListener("keydown", evt => {
+    if(evt.key === "Enter"){
+      evt.preventDefault();
+      render({ autoplay: true });
+      wordInput.blur();
+    }
+  });
+
+  btnPlay.addEventListener("click", () => {
+    if(S.phase !== "demo") return;
+    if(S.playing) pauseDemo();
+    else if(segIdx >= segs.length && segs.length) startDemo(0);
+    else playDemo();
+  });
+
+  btnReplay.addEventListener("click", () => startDemo(0));
+
+  btnStep.addEventListener("click", () => {
+    if(S.phase !== "demo" || !letters.length) return;
+    const restart = segIdx >= segs.length || !segs.length;
+    if(restart) startDemo(0);
+
+    let i = segIdx;
+    while(i < segs.length && segs[i].type !== "stroke") i++;
+    if(i >= segs.length) return;
+    S.stopAt = i;
+
+    if(!S.playing){
+      S.playing = true;
+      lastT = 0;
+      stopTicking();
+      rafId = requestAnimationFrame(tick);
+      syncTransport();
+    }
+  });
+
+  btnTrace.addEventListener("click", () => {
+    if(S.phase === "trace") leaveTrace();
+    else enterTrace();
+  });
+
+  btnPrev.addEventListener("click", () => step(-1));
+  btnNext.addEventListener("click", () => step(1));
+
+  svg.addEventListener("pointerdown", onPointerDown);
+  svg.addEventListener("pointermove", onPointerMove);
+  svg.addEventListener("pointerup", onPointerUp);
+  svg.addEventListener("pointercancel", onPointerUp);
+
+  $("btnWords").addEventListener("click", openWordDialog);
+  $("btnCancelWords").addEventListener("click", () => {
+    if(typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+  });
+  $("btnClearWords").addEventListener("click", () => {
+    customText.value = "";
+    saveCustomWords();
+  });
+  $("wordForm").addEventListener("submit", evt => {
+    evt.preventDefault();
+    saveCustomWords();
+  });
+
+  window.addEventListener("resize", () => {
+    fitSheet();
+  });
+
+  document.addEventListener("keydown", evt => {
+    if(evt.target === wordInput || evt.target.tagName === "TEXTAREA") return;
+    if(dialog.open) return;
+    if(evt.key === " " || evt.code === "Space"){
+      evt.preventDefault();
+      if(S.phase === "demo") btnPlay.click();
+    }else if(evt.key === "ArrowLeft" && !btnPrev.hidden){
+      evt.preventDefault(); step(-1);
+    }else if(evt.key === "ArrowRight" && !btnNext.hidden){
+      evt.preventDefault(); step(1);
+    }else if(evt.key.toLowerCase() === "r"){
+      startDemo(0);
+    }else if(evt.key.toLowerCase() === "t"){
+      btnTrace.click();
+    }
+  });
+
+  /* =====================================================================
+     Boot
+     ===================================================================== */
+  function init(){
+    // restore segmented controls
+    document.querySelectorAll(".seg button[data-case]").forEach(b => {
+      b.setAttribute("aria-pressed", String(b.dataset.case === S.case));
+    });
+    document.querySelectorAll(".seg button[data-guides]").forEach(b => {
+      b.setAttribute("aria-pressed", String(b.dataset.guides === S.guides));
+    });
+
+    // custom tab visibility
+    const customTab = tabs.querySelector('button[data-mode="custom"]');
+    customTab.hidden = S.customWords.length === 0;
+
+    wordInput.value = S.input;
+    askRow.hidden = false;
+    render({ autoplay: true });
+
+    requestAnimationFrame(fitSheet);
+    if("ResizeObserver" in window){
+      new ResizeObserver(() => fitSheet()).observe(sheetwrap);
+    }
+
+    if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
